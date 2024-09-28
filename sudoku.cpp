@@ -9,9 +9,45 @@ using namespace std;
 
 
 using Matrix=vector<vector<optional<int>>>;
-///std::vector<std::vector<std::optional<int>>> matrix9(9,std::vector<std::optional<int>>(9)); 
-//Funcion para mostrar la matrix
+// std::vector<std::vector<std::optional<int>>> matrix9(9,std::vector<std::optional<int>>(9)); 
 
+// Setea un valor en una fila  col especifica
+Matrix setValor(Matrix& matrix,int row,int col,optional<int> valor){
+ matrix[row][col] = valor;
+ return matrix;
+}
+
+// Verifia si un valor es valido en una posicion de la matriz
+bool isValid(Matrix& matrix, int row, int col, int valor){
+    return validInRow(matrix, row, valor) && validInCol(matrix, col, valor) 
+    && validInSubgrid(matrix, row, col, valor);
+}
+
+// Validar valor en una fila
+bool validInRow(Matrix& matrix, int row, int valor){
+    return std::none_of(matrix[row].begin(), matrix[row].end(), 
+    [=](const optional<int>& cell) { return cell == valor; });
+}
+
+// Validar valor en un columa
+bool validInCol(Matrix& matrix, int col, int valor){
+    return std::none_of(matrix.begin(), matrix.end(), 
+    [=](const vector<optional<int>>& row) { return row[col] == valor; });
+}
+
+// Validar valor en una submatriz de 3x3
+bool alidInSubgrid(Matrix& matrix,int row, int col, int valor){
+    // Calculo de coordenadas 
+    const int submatrizRowStart = (row / 3) * 3;
+    const int submatrizColStart = (col / 3) * 3;
+
+    vetor<optional<int>> submatriz(9); // vector para guardar los 9 elementos de la submatriz
+    std::generate(submatriz.begin(), submatriz.end(),[=](){
+        int r = 
+    })
+}
+
+// Funcion para mostrar la matrix
 void printMatrix(const Matrix& matrix) {
     // Iteramos sobre cada fila
     std::for_each(matrix.begin(), matrix.end(), [](const vector<optional<int>>& row) {
@@ -25,15 +61,7 @@ void printMatrix(const Matrix& matrix) {
     });
 }
 
-//setea un valor en una fila  col especifica
-decltype (auto) setValor(Matrix & matrix,int a,int b,optional<int> valor)
-{
- matrix[a][b]=valor;
- return 0;
-}
-
-//
-/// Funcion para crear un grid inicial
+// Funcion para crear un grid inicial
 Matrix createInitialMatrix(){
 return{{make_optional(5), nullopt, make_optional (1), nullopt, nullopt, nullopt, nullopt, nullopt, nullopt}
     ,{nullopt, nullopt, nullopt, nullopt, make_optional (7), nullopt, nullopt, nullopt, nullopt}
@@ -56,7 +84,7 @@ decltype (auto) imprimirMatrix(Matrix & matrix){
     return 0;
 }
 int main() {
- std::cout << "Hola" << std::endl;
+ std::cout << "Hola---" << std::endl;
     Matrix matrix = createInitialMatrix();
     printMatrix(matrix);
 
