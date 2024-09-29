@@ -63,18 +63,21 @@ bool isValidSubmatriz(const Matrix& matrix,int row, int col, optional<int> valor
         return cell == valor;
     });
 }
-//Funcion para buscar coord vacias
+// Find an empty cell (i.e., a cell with Nothing)
+// findEmptyCell :: Grid -> Maybe (Int, Int)
 optional<pair<int,int>> findEmptycell(const Matrix& matrix){
      vector<optional<pair<int, int>>> cells;
      optional<pair<int,int>> pos;
 int fila=0;
-//transformamos la matriz en un vector de coordenadas
 transform(matrix.begin(),matrix.end(),back_inserter(cells),[&fila,&cells,&pos](const vector<optional<int>>& datos)->optional<pair<int,int>>  
 { int col=0; transform(datos.begin(),datos.end(),back_inserter(cells),[&fila,&col,&pos](const optional<int>& valor)->optional<pair<int,int>> {
-    //aplicamos la condicion
 auto result=valor.has_value()?(col++,nullopt):(pos=make_optional(make_pair(fila,col)),cout<<"solo prueba,elimina este cout ("<<pos->first <<","<<pos->second<<")\n",col++,pos);
 return result;
 });fila++;return nullopt;});return nullopt;}
+
+
+
+
 
 // Función para mostrar la matriz
 void printMatrix(const Matrix& matrix) {
