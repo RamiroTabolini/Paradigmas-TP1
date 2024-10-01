@@ -16,6 +16,9 @@ bool isValid(const Matrix&, int, int, optional<int>);
 bool validInRow(const Matrix&, int, optional<int>);
 bool validInCol(const Matrix&, int, optional<int>);
 bool isValidSubmatriz(const Matrix&,int, int, optional<int>);
+std::optional<Matrix> tryValues(const Matrix&, int, int, const std::vector<int>&);
+std::optional<Matrix> solveSudoku(const Matrix&);
+optional<pair<int, int>> findEmptycell(const Matrix&);
 void printMatrix(const Matrix&);
 Matrix createInitialMatrix();
 
@@ -63,8 +66,51 @@ bool isValidSubmatriz(const Matrix& matrix,int row, int col, optional<int> valor
         return cell == valor;
     });
 }
+
+std::optional<Matrix> tryValues(const Matrix& matrix, int row, int col, const std::vector<int>& values) {
+    if (values.empty()) return std::nullopt; // Si no hay más valores, no hay solución
+    int n = values.front();
+    if (isValid(matrix, row, col, make_optional(n))) {
+        Matrix matrixCopy = matrix;
+        matrixCopy[row][col] = make_optional(n); // Asignar el valor temporal
+        auto result = solveSudoku(matrixCopy);
+        if (result.has_value()) return result; // Si encuentra solución
+    }
+    return tryValues(matrix, row, col, {values.begin() + 1, values.end()}); // valores restantes
+}
+
+std::optional<Matrix> solveSudoku(const Matrix& matrix){
+    auto emptyCell= findEmptycell(matrix);// Busca la primera celda vacia
+    if (!emptyCell.has_value()) return matrix;// Si no hay celdas vacias, devolvemos la solucion
+    auto [row, col] = emptyCell.value();//obtenemos las coordenadas de la celda vacia
+    std::vector<int> values = {1,2,3,4,5,6,7,8,9};
+    return tryValues(matrix, row, col, values);
+}
+
+optional<pair<int, int>> findEmptycell(const Matrix& matrix) {
+    // Encontrar una tupla (índice de fila, índice de columna) donde haya una celda vacía
+    auto rowIt = std::find_if(matrix.begin(), matrix.end(), [](const vector<optional<int>>& row) {
+        return std::any_of(row.begin(), row.end(), [](const optional<int>& cell) {
+            return !cell.has_value();
+        });
+    });    
+    if (rowIt == matrix.end())return nullopt;//No filas vacias
+
+    int rowIdx = std::distance(matrix.begin(), rowIt);//Indice de la fila
+
+    // Buscar la columna vacía dentro de esa fila
+    int colIdx = std::distance(rowIt->begin(), std::find_if(rowIt->begin(), rowIt->end(), [](const optional<int>& cell) {
+        return !cell.has_value();
+    }));
+
+    // Devolver la posición como un par (fila, columna)
+    return make_optional(make_pair(rowIdx, colIdx));
+}
+
+
 // Find an empty cell (i.e., a cell with Nothing)
 // findEmptyCell :: Grid -> Maybe (Int, Int)
+/*
 optional<pair<int,int>> findEmptycell(const Matrix& matrix){
      vector<optional<pair<int, int>>> cells;
      optional<pair<int,int>> pos;
@@ -73,11 +119,7 @@ transform(matrix.begin(),matrix.end(),back_inserter(cells),[&fila,&cells,&pos](c
 { int col=0; transform(datos.begin(),datos.end(),back_inserter(cells),[&fila,&col,&pos](const optional<int>& valor)->optional<pair<int,int>> {
 auto result=valor.has_value()?(col++,nullopt):(pos=make_optional(make_pair(fila,col)),cout<<"solo prueba,elimina este cout ("<<pos->first <<","<<pos->second<<")\n",col++,pos);
 return result;
-});fila++;return nullopt;});return nullopt;}
-
-
-
-
+});fila++;return nullopt;});return nullopt;}*/
 
 // Función para mostrar la matriz
 void printMatrix(const Matrix& matrix) {
@@ -106,15 +148,23 @@ Matrix createInitialMatrix() {
 }
 
 int main() {
-    std::cout << "Hola---" << std::endl;
+    // Crear la matriz inicial
     Matrix matrix = createInitialMatrix();
-    vector<optional<pair<int,int>>> cells;
-    optional<pair<int,int>> pos;
+
+    // Imprimir la matriz inicial
+    std::cout << "Tablero inicial de Sudoku:" << std::endl;
     printMatrix(matrix);
     
-    //setValor(matrix,1,2,5);
-    std::cout << (isValid(matrix,1,4,8) ? "TRUE" : "FALSE")<< std::endl;
-    std::cout << (isValid(matrix,1,2,4) ? "TRUE" : "FALSE")<< std::endl;
-    pos = findEmptycell(matrix); 
+    // Resolver el Sudoku
+    auto solucion = solveSudoku(matrix);
+    
+    // Verificar si se encontró una solución
+    if (solucion.has_value()) {
+        std::cout << "\nSudoku resuelto:" << std::endl;
+        printMatrix(solucion.value());
+    } else {
+        std::cout << "\nNo se encontró solución para este Sudoku." << std::endl;
+    }
+
     return 0;
 }
